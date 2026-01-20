@@ -1,4 +1,4 @@
-from conexão import conexao
+from conexao import conexao
 import psycopg2
 from etl_pim import dataframe
 
@@ -16,7 +16,8 @@ def executar_sql():
     unidade VARCHAR(50),
     "PIMPF - Número-índice (2022=100)" NUMERIC,
     data DATE,
-    "PIMPF - Número-índice com ajuste sazonal (2022=100)" NUMERIC);
+    "PIMPF - Número-índice com ajuste sazonal (2022=100)" NUMERIC
+    );
     '''
     
     cur.execute(dados_pim)

@@ -1,0 +1,38 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: postgres_pim
+    restart: always
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - scraper_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  etl_pim:
+    build: .
+    container_name: scraper_pim
+    env_file:
+      - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - scraper_net
+
+volumes:
+  pgdata:
+
+networks:
+  scraper_net:
+    driver: bridge

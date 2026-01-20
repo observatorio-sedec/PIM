@@ -1,7 +1,7 @@
 import ssl
 import pandas as pd
 import requests as rq
-from datetime import date, datetime
+from datetime import datetime
 
 
 url = f'https://servicodados.ibge.gov.br/api/v3/agregados/8888/periodos/202201/variaveis/12606%7C12607?localidades=N3[all]&classificacao=544[129315,129316,129317,129318,129319,129320,129321,129322,129323,129324,129325,129326,56689,129330,129331,129332,129333,129334,129335,129336,129337,129338,129339,129340,129341,129342]'
@@ -104,6 +104,7 @@ def gerando_dataframe(dados_limpos_12606, dados_limpos_dados_brutos_12607):
     dataframe['PIMPF - Número-índice com ajuste sazonal (2022=100)'] = dataframe['PIMPF - Número-índice com ajuste sazonal (2022=100)'].astype(float)
     dataframe['produto'] = dataframe['produto'].str.replace(r'^\d+\.\d+\s+', '', regex=True)
     dataframe['produto'] = dataframe['produto'].str.replace(r'^\d+', '', regex=True)
+    dataframe['ano'] = pd.to_datetime(dataframe['ano'], format='%d/%m/%Y').dt.date
 
     return dataframe
 
@@ -134,7 +135,7 @@ def executando_loop_datas():
 dados_limpos_12606, dados_limpos_dados_brutos_12607= executando_loop_datas()
 dataframe = gerando_dataframe(dados_limpos_12606, dados_limpos_dados_brutos_12607)
 dataframe.to_excel('C:\\Users\\LucasFreitas\\Documents\\Lucas Freitas Arquivos\\DATAHUB\\TABELAS\\TABELAS EM CSV\\PIM_PROD_FISICA.xlsx', index=False)
-
+print(dataframe)
 if __name__ == '__main__':
     from sql import executar_sql
     executar_sql()
