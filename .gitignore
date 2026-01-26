@@ -1,2 +1,4 @@
 conexao.py
 .env
+.env.prod
+__pycache__/

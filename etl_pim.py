@@ -33,10 +33,12 @@ def requisitando_dados(url):
 
     # Verificação se a resposta contém os dados esperados
     if len(dados_brutos) < 2:
-        raise Exception("A resposta da url não contém dados suficientes.")
+        print(f"Aviso: Dados insuficientes para a URL {url}")
+        return None, None
     
     if dados_brutos_url.status_code == 500:
-        raise Exception(f"Os dados passou de 100.0000 por isso o codigo de: {dados_brutos_url.status_code}")
+        print(f"Aviso: Erro 500 para a URL {url}")
+        return None, None
 
     dados_brutos_12606 = dados_brutos[0]
     dados_brutos_12607 = dados_brutos[1]
@@ -100,6 +102,10 @@ def gerando_dataframe(dados_limpos_12606, dados_limpos_dados_brutos_12607):
 
 
     dataframe = pd.merge(df12606, df12607, on=['id', 'nome', 'id_produto', 'produto', 'unidade', 'ano'], how='inner')
+    
+    if dataframe.empty:
+        return dataframe
+        
     dataframe['PIMPF - Número-índice (2022=100)'] = dataframe['PIMPF - Número-índice (2022=100)'].astype(float)
     dataframe['PIMPF - Número-índice com ajuste sazonal (2022=100)'] = dataframe['PIMPF - Número-índice com ajuste sazonal (2022=100)'].astype(float)
     dataframe['produto'] = dataframe['produto'].str.replace(r'^\d+\.\d+\s+', '', regex=True)
@@ -122,10 +128,8 @@ def executando_loop_datas():
             else:
                 url = f'https://servicodados.ibge.gov.br/api/v3/agregados/8888/periodos/{ano}0{mes}/variaveis/12606%7C12607?localidades=N3[all]&classificacao=544[all]'     
             variavel12606, variavel_12607= requisitando_dados(url)
-            if len(variavel12606) == 0 and len(variavel_12607) == 0 :
-                lista_dados_12606, lista_dados_12607= tratando_dados(variavel12606, variavel_12607)
-
-            else:
+            
+            if variavel12606 is not None and variavel_12607 is not None:
                 novos_dados_12606, novos_dados_12607= tratando_dados(variavel12606, variavel_12607)
                 lista_dados_12606.extend(novos_dados_12606)
                 lista_dados_12607.extend(novos_dados_12607)
@@ -134,7 +138,6 @@ def executando_loop_datas():
 
 dados_limpos_12606, dados_limpos_dados_brutos_12607= executando_loop_datas()
 dataframe = gerando_dataframe(dados_limpos_12606, dados_limpos_dados_brutos_12607)
-dataframe.to_excel('C:\\Users\\LucasFreitas\\Documents\\Lucas Freitas Arquivos\\DATAHUB\\TABELAS\\TABELAS EM CSV\\PIM_PROD_FISICA.xlsx', index=False)
 print(dataframe)
 if __name__ == '__main__':
     from sql import executar_sql
