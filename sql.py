@@ -43,7 +43,7 @@ def executar_sql():
     '''
 
     try:
-        for idx, i in dataframe.iterrows():
+        for i in dataframe.iter_rows(named=True):
             dados = (
                 i['id'],
                 i['nome'],
